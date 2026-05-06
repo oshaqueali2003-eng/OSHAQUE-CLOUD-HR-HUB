@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSHAQUE CLOUD HMS - Cloud HR Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-badge"><i class="fas fa-cloud-sun"></i></div>
+                <div>
+                    <h2>OSHAQUE<br><span>CLOUD HR HUB</span></h2>
+                    <p class="sidebar-tagline">Smart HR platform for modern teams.</p>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-nav">
+            <a href="/dashboard" class="nav-item {% if module == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-home"></i><span>Dashboard</span>
+            </a>
+            <a href="/employees" class="nav-item {% if module == 'employees' %}active{% endif %}">
+                <i class="fas fa-users"></i><span>Employees</span>
+            </a>
+            <a href="/attendance" class="nav-item {% if module == 'attendance' %}active{% endif %}">
+                <i class="fas fa-calendar-check"></i><span>Attendance</span>
+            </a>
+            <a href="/leaves" class="nav-item {% if module == 'leaves' %}active{% endif %}">
+                <i class="fas fa-umbrella-beach"></i><span>Leaves</span>
+            </a>
+            <a href="/salaries" class="nav-item {% if module == 'salaries' %}active{% endif %}">
+                <i class="fas fa-rupee-sign"></i><span>Salaries</span>
+            </a>
+            {% if role == 'admin' %}
+            <a href="/reports" class="nav-item {% if module == 'reports' %}active{% endif %}">
+                <i class="fas fa-chart-line"></i><span>Reports</span>
+            </a>
+            <a href="/approvals" class="nav-item {% if module == 'approvals' %}active{% endif %}">
+                <i class="fas fa-user-check"></i><span>Approvals</span>
+            </a>
+            {% endif %}
+            <a href="/my_profile" class="nav-item {% if module == 'my_profile' %}active{% endif %}">
+                <i class="fas fa-user-circle"></i><span>My Profile</span>
+            </a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-info" onclick="window.location.href='/my_profile'">
+                <i class="fas fa-user-circle"></i>
+                <div>
+                    <strong>{{ session['username'] }}</strong><br>
+                    <small>{{ role | upper }}</small>
+                </div>
+            </div>
+            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-header">
+            <div class="logo-area">
+                <div class="logo-badge"><i class="fas fa-cloud-upload-alt"></i></div>
+                <div>
+                    <div class="header-badge"><i class="fas fa-shield-alt"></i> Enterprise grade HR ecosystem</div>
+                    <h1><span>OSHAQUE</span> CLOUD HR HUB</h1>
+                    <p class="main-tagline">Intelligent workflows, beautiful employee experiences.</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <span class="date-badge" id="currentDate"></span>
+                <span class="role-badge"><i class="fas {{ 'fa-user-shield' if role == 'admin' else 'fa-user-tie' if role == 'manager' else 'fa-user' }}"></i> {{ role | upper }}</span>
+            </div>
+        </div>
+
+        <!-- DASHBOARD MODULE -->
+        {% if module == 'dashboard' %}
+        <div class="stats-grid">
+            <div class="stat-card"><i class="fas fa-users"></i><h2>{{ total_employees }}</h2><p>Total Employees</p></div>
+            <div class="stat-card"><i class="fas fa-calendar-check"></i><h2>{{ present_today }}</h2><p>Present Today</p></div>
+            <div class="stat-card"><i class="fas fa-clock"></i><h2>{{ pending_leaves }}</h2><p>Pending Leaves</p></div>
+            <div class="stat-card"><i class="fas fa-user-check"></i><h2>{{ active_employees }}</h2><p>Active Employees</p></div>
+        </div>
+        <div class="two-columns">
+            <div class="card">
+                <div class="card-header"><h3><i class="fas fa-user-plus"></i> Recent Employees</h3></div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead><tr><th>ID</th><th>Name</th><th>Designation</th><th>Joining Date</th></tr></thead>
+                        <tbody>{% for emp in recent_employees %}<tr><td style="padding:10px">{{ emp[0] }}</td><td style="padding:10px">{{ emp[1] }}</td><td style="padding:10px">{{ emp[2] }}</td><td style="padding:10px">{{ emp[3] }}</td></tr>{% endfor %}</tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h3><i class="fas fa-bolt"></i> Quick Actions</h3></div>
+                <div class="table-container">
+                    <div style="padding:20px">
+                        {% if role == 'employee' %}
+                        <a href="/check_in" class="btn-primary" style="margin:5px"><i class="fas fa-sign-in-alt"></i> Check In</a>
+                        <a href="/check_out" class="btn-primary" style="margin:5px"><i class="fas fa-sign-out-alt"></i> Check Out</a>
+                        <a href="/leaves" class="btn-primary" style="margin:5px"><i class="fas fa-umbrella-beach"></i> Apply Leave</a>
+                        {% elif role == 'manager' %}
+                        <a href="/leaves" class="btn-primary" style="margin:5px"><i class="fas fa-check-circle"></i> Approve Leaves</a>
+                        <a href="/employees" class="btn-primary" style="margin:5px"><i class="fas fa-users"></i> View Team</a>
+                        {% else %}
+                        <a href="/employees" class="btn-primary" style="margin:5px"><i class="fas fa-user-plus"></i> Add Employee</a>
+                        <a href="/leaves" class="btn-primary" style="margin:5px"><i class="fas fa-check-circle"></i> Approve Leaves</a>
+                        <a href="/reports" class="btn-primary" style="margin:5px"><i class="fas fa-chart-line"></i> Reports</a>
+                        <a href="/approvals" class="btn-primary" style="margin:5px"><i class="fas fa-user-check"></i> Approvals</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- EMPLOYEES MODULE -->
+        {% if module == 'employees' %}
+        <div class="module-header"><h2><i class="fas fa-users"></i> Employee Management</h2>{% if role == 'admin' %}<button class="btn-primary" onclick="showModal('addEmployeeModal')"><i class="fas fa-plus"></i> Add Employee</button>{% endif %}</div>
+        <div class="card">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Department</th><th>Designation</th><th>Salary</th>{% if role == 'admin' %}<th>Action</th>{% endif %}</tr></thead>
+                    <tbody>{% for emp in employees %}<tr><td>{{ emp[1] }}</td><td>{{ emp[2] }}</td><td>{{ emp[3] }}</td><td>{{ emp[4] }}</td><td>{{ emp[5] }}</td><td>{{ emp[6] }}</td><td>₹{{ "%.2f"|format(emp[7]) }}</td>{% if role == 'admin' %}<td><a href="/delete_employee/{{ emp[0] }}" class="btn-sm danger" onclick="return confirm('Delete?')"><i class="fas fa-trash"></i> Delete</a></td>{% endif %}</tr>{% endfor %}</tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="addEmployeeModal" class="modal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-user-plus"></i> Add Employee</h3><span class="close" onclick="closeModal('addEmployeeModal')">&times;</span></div>
+        <form action="/add_employee" method="POST" enctype="multipart/form-data"><div class="form-row"><div class="form-group"><label><i class="fas fa-user"></i> Full Name</label><input type="text" name="name" required></div><div class="form-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" name="email"></div></div>
+        <div class="form-row"><div class="form-group"><label><i class="fas fa-phone"></i> Phone</label><input type="text" name="phone"></div><div class="form-group"><label><i class="fas fa-map-marker-alt"></i> Address</label><input type="text" name="address"></div></div>
+        <div class="form-row"><div class="form-group"><label><i class="fas fa-building"></i> Department</label><select name="department_id">{% for d in departments %}<option value="{{ d[0] }}">{{ d[1] }}</option>{% endfor %}</select></div><div class="form-group"><label><i class="fas fa-briefcase"></i> Designation</label><input type="text" name="designation"></div></div>
+        <div class="form-row"><div class="form-group"><label><i class="fas fa-rupee-sign"></i> Basic Salary</label><input type="number" name="basic_salary"></div><div class="form-group"><label><i class="fas fa-calendar"></i> Joining Date</label><input type="date" name="joining_date" required></div></div>
+        <div class="form-group"><label><i class="fas fa-camera"></i> Photo</label><input type="file" name="photo" accept="image/*"></div>
+        <div class="form-buttons"><button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save</button><button type="button" class="btn-secondary" onclick="closeModal('addEmployeeModal')"><i class="fas fa-times"></i> Cancel</button></div></form></div></div>
+        {% endif %}
+
+        <!-- ATTENDANCE MODULE -->
+        {% if module == 'attendance' %}
+        <div class="module-header"><h2><i class="fas fa-calendar-check"></i> Attendance Management</h2></div>
+        {% if role == 'employee' %}<div class="card"><div class="card-header"><h3><i class="fas fa-clock"></i> Today's Action</h3></div><div style="padding:20px"><a href="/check_in" class="btn-primary"><i class="fas fa-sign-in-alt"></i> Check In</a> <a href="/check_out" class="btn-primary" style="margin-left:10px"><i class="fas fa-sign-out-alt"></i> Check Out</a></div></div>{% endif %}
+        <div class="card"><div class="table-container"><table class="data-table"><thead><tr><th>Date</th>{% if role != 'employee' %}<th>Employee</th><th>ID</th>{% endif %}<th>Check In</th><th>Check Out</th><th>Status</th></tr></thead><tbody>{% for a in attendance %}<tr><td>{{ a[0] }}</td>{% if role != 'employee' %}<td>{{ a[1] }}</td><td>{{ a[2] }}</td>{% endif %}<td>{{ a[3] if role != 'employee' else a[1] }}</td><td>{{ a[4] if role != 'employee' else a[2] }}</td><td><span class="status-badge status-{{ a[5] if role != 'employee' else a[3] }}">{{ a[5] if role != 'employee' else a[3] }}</span></td></tr>{% endfor %}</tbody></table></div></div>
+        {% endif %}
+
+        <!-- LEAVES MODULE -->
+        {% if module == 'leaves' %}
+        <div class="module-header"><h2><i class="fas fa-umbrella-beach"></i> Leave Management</h2>{% if role != 'admin' %}<button class="btn-primary" onclick="showModal('applyLeaveModal')"><i class="fas fa-plus"></i> Apply Leave</button>{% endif %}</div>
+        <div class="card"><div class="table-container"><table class="data-table"><thead><tr>{% if role != 'employee' %}<th>Employee</th>{% endif %}<th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Status</th>{% if role != 'employee' %}<th>Action</th>{% endif %}</tr></thead><tbody>{% for l in leaves %}<tr>{% if role != 'employee' %}<td>{{ l[1] }}</td>{% endif %}<td>{{ l[2] if role != 'employee' else l[1] }}</td><td>{{ l[3] if role != 'employee' else l[2] }}</td><td>{{ l[4] if role != 'employee' else l[3] }}</td><td>{{ l[5] if role != 'employee' else l[4] }}</td><td>{{ l[6] if role != 'employee' else l[5] }}</td><td><span class="status-badge status-{{ l[-1] if role != 'employee' else l[6] }}">{{ l[-1] if role != 'employee' else l[6] }}</span></td>{% if role != 'employee' %}<td>{% if l[-1] == 'Pending' %}<a href="/approve_leave/{{ l[0] }}" class="btn-sm success"><i class="fas fa-check"></i> App</a> <a href="/reject_leave/{{ l[0] }}" class="btn-sm danger"><i class="fas fa-times"></i> Rej</a>{% endif %}</td>{% endif %}</tr>{% endfor %}</tbody></table></div></div>
+
+        <div id="applyLeaveModal" class="modal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-umbrella-beach"></i> Apply Leave</h3><span class="close" onclick="closeModal('applyLeaveModal')">&times;</span></div>
+        <form action="/apply_leave" method="POST"><div class="form-group"><label><i class="fas fa-tag"></i> Leave Type</label><select name="leave_type_id">{% for lt in leave_types %}<option value="{{ lt[0] }}">{{ lt[1] }}</option>{% endfor %}</select></div>
+        <div class="form-row"><div class="form-group"><label><i class="fas fa-calendar-day"></i> From</label><input type="date" name="from_date" required></div><div class="form-group"><label><i class="fas fa-calendar-day"></i> To</label><input type="date" name="to_date" required></div></div>
+        <div class="form-group"><label><i class="fas fa-comment"></i> Reason</label><textarea name="reason" rows="3"></textarea></div>
+        <div class="form-buttons"><button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Submit</button><button type="button" class="btn-secondary" onclick="closeModal('applyLeaveModal')"><i class="fas fa-times"></i> Cancel</button></div></form></div></div>
+        {% endif %}
+
+        <!-- SALARIES MODULE -->
+        {% if module == 'salaries' %}
+        <div class="module-header"><h2><i class="fas fa-rupee-sign"></i> Salary Management</h2>{% if role == 'admin' %}<button class="btn-primary" onclick="showModal('generatePayrollModal')"><i class="fas fa-plus"></i> Generate Payroll</button>{% endif %}</div>
+        <div class="card"><div class="table-container"><table class="data-table"><thead><tr><th>Employee</th><th>Month/Year</th><th>Basic</th><th>Allowances</th><th>Net Salary</th><th>Status</th><th>Action</th></tr></thead><tbody>{% for s in salaries %}<tr><td>{{ s[1] }}</td><td>{{ s[2] }}/{{ s[3] }}</td><td>₹{{ "%.2f"|format(s[4]) }}</td><td>₹{{ "%.2f"|format(s[5]) }}</td><td>₹{{ "%.2f"|format(s[6]) }}</td><td><span class="status-badge status-{{ s[7] }}">{{ s[7] }}</span></td><td><a href="/download_salary_pdf/{{ s[0] }}" class="btn-sm primary"><i class="fas fa-download"></i> PDF</a>{% if s[7] == 'Pending' and role == 'admin' %}<button onclick="showPaymentModal('{{ s[0] }}')" class="btn-sm success"><i class="fas fa-credit-card"></i> Pay</button>{% endif %}</td></tr>{% endfor %}</tbody></table></div></div>
+
+        <div id="generatePayrollModal" class="modal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-rupee-sign"></i> Generate Payroll</h3><span class="close" onclick="closeModal('generatePayrollModal')">&times;</span></div>
+        <form action="/generate_payroll" method="POST"><div class="form-group"><label><i class="fas fa-user"></i> Employee</label><select name="emp_id">{% for e in employees_list %}<option value="{{ e[0] }}">{{ e[1] }}</option>{% endfor %}</select></div>
+        <div class="form-row"><div class="form-group"><label><i class="fas fa-calendar-month"></i> Month</label><select name="salary_month">{% for m in range(1,13) %}<option value="{{ m }}">{{ m }}</option>{% endfor %}</select></div><div class="form-group"><label><i class="fas fa-calendar-year"></i> Year</label><select name="salary_year">{% for y in range(2020,2030) %}<option value="{{ y }}">{{ y }}</option>{% endfor %}</select></div></div>
+        <div class="form-buttons"><button type="submit" class="btn-primary"><i class="fas fa-save"></i> Generate</button><button type="button" class="btn-secondary" onclick="closeModal('generatePayrollModal')"><i class="fas fa-times"></i> Cancel</button></div></form></div></div>
+
+        <div id="paymentModal" class="modal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-credit-card"></i> Make Payment</h3><span class="close" onclick="closeModal('paymentModal')">&times;</span></div><form id="paymentForm" method="POST"><div class="form-group"><label><i class="fas fa-money-bill"></i> Method</label><select name="payment_method"><option>Cash</option><option>Bank Transfer</option><option>Cheque</option></select></div><div class="form-buttons"><button type="submit" class="btn-primary"><i class="fas fa-check"></i> Confirm</button><button type="button" class="btn-secondary" onclick="closeModal('paymentModal')"><i class="fas fa-times"></i> Cancel</button></div></form></div></div>
+        {% endif %}
+
+        <!-- REPORTS MODULE -->
+        {% if module == 'reports' %}
+        <div class="module-header"><h2><i class="fas fa-chart-line"></i> Reports & Analytics</h2></div>
+        <div class="stats-grid">
+            <div class="stat-card"><i class="fas fa-calendar-day"></i><h2>{{ present }}</h2><p>Present Today</p></div>
+            <div class="stat-card"><i class="fas fa-users"></i><h2>{{ total }}</h2><p>Total Employees</p></div>
+            <div class="stat-card"><i class="fas fa-rupee-sign"></i><h2>₹{{ "%.2f"|format(monthly_expense) }}</h2><p>Monthly Expense</p></div>
+            <div class="stat-card"><i class="fas fa-clock"></i><h2>{{ pending_leaves }}</h2><p>Pending Leaves</p></div>
+        </div>
+        <div class="two-columns">
+            <div class="card"><div class="card-header"><h3><i class="fas fa-building"></i> Department-wise Employees</h3></div><div class="table-container"><table class="data-table"><thead><tr><th>Department</th><th>Count</th></tr></thead><tbody>{% for d in dept_stats %}<tr><td>{{ d[0] }}</td><td>{{ d[1] }}</td></tr>{% endfor %}</tbody></table></div></div>
+            <div class="card"><div class="card-header"><h3><i class="fas fa-download"></i> Export Reports</h3></div><div style="padding:20px"><a href="/export_employees_excel" class="btn-primary"><i class="fas fa-file-excel"></i> Export to Excel</a></div></div>
+        </div>
+        {% endif %}
+
+        <!-- APPROVALS MODULE -->
+        {% if module == 'approvals' %}
+        <div class="module-header"><h2><i class="fas fa-user-check"></i> Registration Approvals</h2></div>
+        <div class="card"><div class="table-container"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Department</th><th>Designation</th><th>Username</th><th>Action</th></tr></thead><tbody>{% for req in approval_requests %}<tr><td>{{ req[1] }}</td><td>{{ req[2] }}</td><td>{{ req[3] }}</td><td>{{ req[4] }}</td><td>{{ req[5] }}</td><td>{{ req[6] }}</td><td><a href="/approve_request/{{ req[0] }}" class="btn-sm success"><i class="fas fa-check"></i> App</a> <a href="/reject_request/{{ req[0] }}" class="btn-sm danger"><i class="fas fa-times"></i> Rej</a></td></tr>{% endfor %}</tbody></table></div></div>
+        {% endif %}
+
+        <!-- MY PROFILE MODULE -->
+        {% if module == 'my_profile' and profile_employee %}
+        <div class="profile-card">
+            <div class="profile-header">{% if profile_employee[10] %}<img src="{{ profile_employee[10] }}" alt="Profile Photo" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-right: 15px;">{% else %}<i class="fas fa-user-circle"></i>{% endif %}<h2>{{ profile_employee[2] }}</h2><p>{{ profile_employee[7] }} • {{ profile_employee[11] }}</p></div>
+            <div class="profile-body">
+                <div class="info-row"><div class="info-label"><i class="fas fa-id-card"></i> Employee ID</div><div class="info-value">{{ profile_employee[1] }}</div></div>
+                <div class="info-row"><div class="info-label"><i class="fas fa-envelope"></i> Email</div><div class="info-value">{{ profile_employee[3] or 'Not provided' }}</div></div>
+                <div class="info-row"><div class="info-label"><i class="fas fa-phone"></i> Phone</div><div class="info-value">{{ profile_employee[4] or 'Not provided' }}</div></div>
+                <div class="info-row"><div class="info-label"><i class="fas fa-building"></i> Department</div><div class="info-value">{{ profile_employee[11] or 'Not assigned' }}</div></div>
+                <div class="info-row"><div class="info-label"><i class="fas fa-briefcase"></i> Designation</div><div class="info-value">{{ profile_employee[7] or 'Not specified' }}</div></div>
+                <div class="info-row"><div class="info-label"><i class="fas fa-rupee-sign"></i> Basic Salary</div><div class="info-value">₹{{ "%.2f"|format(profile_employee[8]) }}</div></div>
+                <div class="info-row"><div class="info-label"><i class="fas fa-calendar"></i> Joining Date</div><div class="info-value">{{ profile_employee[9] }}</div></div>
+            </div>
+            <div class="profile-edit">
+                <h3><i class="fas fa-edit"></i> Edit Profile</h3>
+                <form action="/edit_profile" method="POST" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Full Name</label>
+                            <input type="text" name="name" value="{{ profile_employee[2] }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email</label>
+                            <input type="email" name="email" value="{{ profile_employee[3] or '' }}">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Phone</label>
+                            <input type="text" name="phone" value="{{ profile_employee[4] or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-building"></i> Department</label>
+                            <select name="department_id">
+                                {% for d in departments %}
+                                <option value="{{ d[0] }}" {% if d[0] == profile_employee[6] %}selected{% endif %}>{{ d[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                        <input type="text" name="address" value="{{ profile_employee[5] or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-camera"></i> Profile Photo</label>
+                        <input type="file" name="photo" accept="image/*">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        document.getElementById('currentDate').innerHTML = new Date().toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' });
+        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; }
+        function showPaymentModal(id) { document.getElementById('paymentForm').action = '/update_payment/' + id; showModal('paymentModal'); }
+        
+        // Active nav highlight
+        document.querySelectorAll('.nav-item').forEach(function(item) {
+            if (window.location.pathname.includes(item.getAttribute('href'))) {
+                item.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | OSHAQUE CLOUD HRMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-page register-page">
+    <div class="register-container">
+        <div class="register-wrapper">
+            <!-- Left Side - Branding -->
+            <div class="register-brand">
+                <div class="logo-animation">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h1>OSHAQUE CLOUD HRMS</h1>
+                <p>Human Resource Management System</p>
+                <div class="brand-features">
+                    <div class="feature">
+                        <i class="fas fa-users"></i>
+                        <span>Employee Management</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Attendance Tracking</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-umbrella-beach"></i>
+                        <span>Leave Management</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-rupee-sign"></i>
+                        <span>Payroll System</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Real-time Reports</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Register Form -->
+            <div class="register-form">
+                <div class="form-header">
+                    <h2>Create Account</h2>
+                    <p>Register as a new employee</p>
+                </div>
+
+                {% if error %}
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                {% if success %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    {{ success }}
+                </div>
+                {% endif %}
+
+                <form action="/register" method="POST">
+                    <div class="form-row">
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" name="name" placeholder="Full Name" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" name="email" placeholder="Email Address" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <i class="fas fa-phone"></i>
+                            <input type="text" name="phone" placeholder="Phone Number" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-building"></i>
+                            <select name="department_id" required>
+                                <option value="">Select Department</option>
+                                {% for d in departments %}
+                                <option value="{{ d[0] }}">{{ d[1] }}</option>
+                                {% endfor %}
+                            </select>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <i class="fas fa-briefcase"></i>
+                            <input type="text" name="designation" placeholder="Designation / Job Title" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-user-circle"></i>
+                            <input type="text" name="username" placeholder="Username" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" name="password" placeholder="Password" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="register-btn">
+                        <i class="fas fa-paper-plane"></i> Register
+                    </button>
+                </form>
+
+                <div class="login-link">
+                    Already have an account? <a href="/login">Login here</a>
+                </div>
+
+                <div class="login-link" style="margin-top: 10px; border-top: none; padding-top: 0;">
+                    <small>After registration, <strong>Admin will approve</strong> your account</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password confirmation validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var password = document.querySelector('input[name="password"]').value;
+            var confirm = document.querySelector('input[name="confirm_password"]').value;
+            
+            if (password !== confirm) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+            }
+        });
+    </script>
+</body>
+</html>

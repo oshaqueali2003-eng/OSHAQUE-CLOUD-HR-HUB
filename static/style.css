@@ -1591,3 +1591,90 @@ body {
         flex-wrap: wrap;
     }
 }
+/* ============================================
+   FIXED SCROLLING FOR LOGIN PAGE
+   ============================================ */
+
+/* Ensure login page body can scroll */
+.auth-page {
+    min-height: 100vh;
+    height: auto;
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    display: block;
+    padding: 30px 20px;
+}
+
+/* Make sure container can scroll */
+.login-container,
+.register-container {
+    min-height: auto;
+    height: auto;
+    overflow: visible;
+}
+
+/* Login wrapper should not restrict height */
+.login-wrapper,
+.register-wrapper,
+.auth-card {
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+    margin: 20px auto;
+}
+
+/* Allow content to flow naturally */
+.login-form,
+.register-form,
+.auth-form {
+    overflow-y: visible;
+    height: auto;
+    max-height: none;
+}
+
+/* Ensure demo credentials are always visible */
+.demo-credentials {
+    position: relative;
+    margin-top: 25px;
+    display: block;
+    clear: both;
+}
+
+/* Fix for small screens */
+@media (max-width: 768px) {
+    .auth-page {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        min-height: 100vh;
+    }
+    
+    .auth-card {
+        margin: 0;
+        max-height: none;
+        overflow: visible;
+    }
+    
+    .auth-form {
+        max-height: none;
+        overflow-y: visible;
+    }
+}
+
+/* Ensure cursor is visible on all inputs */
+input, button, .role-btn, a {
+    cursor: pointer;
+}
+
+input, select, textarea {
+    cursor: text !important;
+}
+
+/* Make scrollbar visible if needed */
+body.auth-page {
+    overflow-y: auto !important;
+}
+
+html {
+    overflow-y: auto !important;
+}

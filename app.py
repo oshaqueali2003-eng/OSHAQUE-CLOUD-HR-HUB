@@ -147,11 +147,11 @@ def approve_request(id):
         cursor.execute("""
             INSERT INTO employees (emp_id, name, email, phone, department_id, designation, joining_date, is_active)
             VALUES (?, ?, ?, ?, ?, ?, ?, 1)
-        """, (emp_id, req[1], req[2], req[3], req[5], req[6], date.today()))
+        """, (emp_id, req[1], req[2], req[3], req[4], req[5], date.today()))
         cursor.execute("""
             INSERT INTO users (username, password, role, emp_id, is_approved)
             VALUES (?, ?, 'employee', ?, 1)
-        """, (req[7], req[8], emp_id))
+        """, (req[6], req[7], emp_id))
         cursor.execute("UPDATE registration_requests SET status='Approved' WHERE id=?", (id,))
         conn.commit()
     conn.close()
@@ -168,6 +168,7 @@ def reject_request(id):
     conn.commit()
     conn.close()
     return redirect(url_for('approvals'))
+
 
 # ==================== EDIT PROFILE (Employee Self) ====================
 @app.route('/edit_profile', methods=['POST'])

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, s
 from datetime import datetime, date
 import os
 import io
+import hashlib
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -14,6 +15,7 @@ app = Flask(__name__)
 app.secret_key = 'oshaque-cloud-hms-secret'
 
 import os
+
 
 def get_db_connection():
     conn_str = os.environ.get('AZURE_SQL_CONNECTIONSTRING', "Driver={ODBC Driver 18 for SQL Server};Server=tcp:sqldbdserver012.database.windows.net,1433;Database=free-sql-db-123;Uid=sqldbdserver012-admin;Pwd=aNH4XTXWF$sA01$R;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;")
@@ -46,22 +48,25 @@ def register():
         designation = request.form['designation']
         username = request.form['username']
         password = request.form['password']
-        
+
+        # Store same format that /login expects (MD5 hex string)
+        password_hash = hashlib.md5(password.encode('utf-8')).hexdigest()
+
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT id FROM users WHERE username=?", (username,))
         if cursor.fetchone():
             conn.close()
             return render_template('register.html', error='Username exists!')
-        
+
         cursor.execute("""
             INSERT INTO registration_requests (name, email, phone, department_id, designation, username, password)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (name, email, phone, dept_id, designation, username, password))
+        """, (name, email, phone, dept_id, designation, username, password_hash))
         conn.commit()
         conn.close()
         return render_template('register.html', success='Request sent! Wait for admin approval.')
-    
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT id, name FROM departments")
@@ -82,20 +87,47 @@ def login():
         username = request.form['username']
         password = request.form['password']
         
+        password_hash = hashlib.md5(password.encode('utf-8')).hexdigest()
+
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
+        # Explicit columns to avoid relying on SELECT * column order
+        cursor.execute(
+            "SELECT id, username, password, role, emp_id, is_approved FROM users WHERE username=?",
+            (username,)
+        )
         user = cursor.fetchone()
         conn.close()
-        
+
         if user:
+            # tuple: (id, username, password, role, emp_id, is_approved)
+            stored_hash = user[2]
+            try:
+                stored_hash = stored_hash.decode('utf-8') if isinstance(stored_hash, (bytes, bytearray)) else str(stored_hash)
+            except Exception:
+                stored_hash = str(stored_hash)
+
+            # Normalize values to reduce mismatches due to whitespace / bytes-like storage
+            stored_norm = str(stored_hash).strip()
+            password_norm = (password or '').strip()
+            stored_lower = stored_norm.lower()
+            password_hash_lower = password_hash.lower()
+
+            # Auth logic:
+            # - MD5 hex match (new accounts)
+            # - plaintext match (legacy/backward compatibility)
+            if stored_lower != password_hash_lower and stored_norm != password_norm:
+                return render_template('login.html', error='Invalid credentials')
+
             if user[5] == 0:
                 return render_template('login.html', error='Account pending approval')
+
             session['user_id'] = user[0]
             session['username'] = user[1]
             session['role'] = user[3]
             session['emp_id'] = user[4]
-            
+
+
             if session['emp_id']:
                 conn = get_db_connection()
                 cursor = conn.cursor()
@@ -168,7 +200,6 @@ def reject_request(id):
     conn.commit()
     conn.close()
     return redirect(url_for('approvals'))
-
 
 # ==================== EDIT PROFILE (Employee Self) ====================
 @app.route('/edit_profile', methods=['POST'])

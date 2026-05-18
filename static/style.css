@@ -1,4 +1,4 @@
-/* ============================================
+n/* ============================================
    OSHAQUE CLOUD HMS - PROFESSIONAL STYLE SHEET
    Cloud-Based HR Management System
    Developed By: Oshaque Ali
@@ -245,7 +245,10 @@ body {
     margin-left: 280px;
     padding: 25px;
     min-height: 100vh;
+    width: calc(100% - 280px);
+    max-width: 1400px;
 }
+
 
 /* Top Header */
 .top-header {
@@ -858,13 +861,27 @@ body {
         flex-direction: column;
         text-align: center;
         gap: 10px;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    .main-content {
+        margin-left: 80px;
+        padding: 15px;
+        width: calc(100% - 80px);
+    }
+
+    /* Prevent any accidental horizontal overflow from non-table areas */
+    body {
+        overflow-x: hidden;
     }
     .data-table th,
     .data-table td {
         padding: 10px 12px;
         font-size: 11px;
+        white-space: nowrap;
     }
 }
+
 
 /* Print Styles */
 @media print {
@@ -934,8 +951,35 @@ body {
     justify-content: center;
     padding: 24px;
     position: relative;
-    overflow: hidden;
+
+    /* Allow vertical scrolling on auth pages when content overflows */
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: auto;
 }
+
+/* Keep horizontal scrollbar disabled, but allow vertical scrollbar (Firefox + Webkit) */
+.auth-page {
+    scrollbar-width: thin;
+    scrollbar-color: #ffd700 rgba(255, 255, 255, 0.15);
+}
+
+.auth-page::-webkit-scrollbar {
+    width: 8px;
+}
+.auth-page::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+}
+.auth-page::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+}
+.auth-page::-webkit-scrollbar-thumb:hover {
+    background: #5a67d8;
+}
+
+
 
 .login-container,
 .register-container {
@@ -1274,59 +1318,75 @@ body {
     .login-wrapper,
     .register-wrapper,
     .auth-card {
-        flex-direction: column;
+        /* wrappers are grids, so flex-direction won't apply */
+        grid-template-columns: 1fr;
     }
-    
+
     .login-brand,
     .register-brand,
     .auth-brand {
         padding: 30px;
     }
-    
+
     .login-brand h1,
     .register-brand h1,
     .auth-brand h1 {
         font-size: 28px;
     }
-    
+
     .login-form,
     .register-form,
     .auth-form {
         padding: 30px;
     }
-    
+
     .brand-features {
         display: none;
+    }
+
+    /* Keep card centered on mobile */
+    .auth-page {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
     }
 }
 
 @media (max-width: 480px) {
+    .login-wrapper,
+    .register-wrapper,
+    .auth-card {
+        margin: 10px auto;
+    }
+
     .login-form,
     .register-form,
     .auth-form {
         padding: 25px;
     }
-    
+
     .form-header h2 {
         font-size: 24px;
     }
-    
+
     .role-btn {
         padding: 10px;
         font-size: 12px;
     }
-    
+
     .input-group input,
     .input-group select {
         padding: 12px 12px 12px 45px;
         font-size: 14px;
     }
-    
+
     .form-row {
         flex-direction: column;
         gap: 0;
     }
 }
+
 
 .auth-page::before {
     content: '';
@@ -1591,90 +1651,5 @@ body {
         flex-wrap: wrap;
     }
 }
-/* ============================================
-   FIXED SCROLLING FOR LOGIN PAGE
-   ============================================ */
 
-/* Ensure login page body can scroll */
-.auth-page {
-    min-height: 100vh;
-    height: auto;
-    overflow-y: auto !important;
-    overflow-x: hidden;
-    display: block;
-    padding: 30px 20px;
-}
-
-/* Make sure container can scroll */
-.login-container,
-.register-container {
-    min-height: auto;
-    height: auto;
-    overflow: visible;
-}
-
-/* Login wrapper should not restrict height */
-.login-wrapper,
-.register-wrapper,
-.auth-card {
-    height: auto;
-    min-height: auto;
-    overflow: visible;
-    margin: 20px auto;
-}
-
-/* Allow content to flow naturally */
-.login-form,
-.register-form,
-.auth-form {
-    overflow-y: visible;
-    height: auto;
-    max-height: none;
-}
-
-/* Ensure demo credentials are always visible */
-.demo-credentials {
-    position: relative;
-    margin-top: 25px;
-    display: block;
-    clear: both;
-}
-
-/* Fix for small screens */
-@media (max-width: 768px) {
-    .auth-page {
-        padding: 15px;
-        display: flex;
-        align-items: center;
-        min-height: 100vh;
-    }
-    
-    .auth-card {
-        margin: 0;
-        max-height: none;
-        overflow: visible;
-    }
-    
-    .auth-form {
-        max-height: none;
-        overflow-y: visible;
-    }
-}
-
-/* Ensure cursor is visible on all inputs */
-input, button, .role-btn, a {
-    cursor: pointer;
-}
-
-input, select, textarea {
-    cursor: text !important;
-}
-
-/* Make scrollbar visible if needed */
-body.auth-page {
-    overflow-y: auto !important;
-}
-
-html {
-    overflow-y: auto !important;
-}
+ 
